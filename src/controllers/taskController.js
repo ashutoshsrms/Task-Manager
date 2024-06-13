@@ -15,7 +15,7 @@ const listTasks = asyncHandler(async (req, res) => {
         subtasks: task.subtasks.filter((subtask) => !subtask.deleted),
       }));
 
-    res.json(tasks);
+    res.json({data:tasks});
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
@@ -37,12 +37,13 @@ const addTask = asyncHandler(async (req, res) => {
 
     user.tasks.push(newTask);
     await user.save();
-
-    res.status(201).json(newTask);
+    const addedTask = user.tasks[user.tasks.length - 1];
+    res.status(201).json(addedTask);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 
 const updateTask = asyncHandler(async (req, res) => {
@@ -88,67 +89,22 @@ const deleteTask = asyncHandler(async (req, res) => {
     task.deleted = true;
     await user.save();
 
-    res.status(204).send(); 
+    // Log the successful deletion
+    console.log(`Task with ID ${req.params.taskId} successfully deleted`);
+
+    // Respond with a JSON message
+    res.status(200).json({ message: "Task successfully deleted" });
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-// List all subtasks for a task, excluding deleted ones
-const listSubtasks = asyncHandler(async (req, res) => {
-  try {
-    const user = await User.findById(req.params.userId);
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    const task = user.tasks.id(req.params.taskId);
-    if (!task || task.deleted) {
-      return res
-        .status(404)
-        .json({ error: "Task not found or already deleted" });
-    }
-
-    const subtasks = task.subtasks.filter((subtask) => !subtask.deleted);
-    res.json(subtasks);
-  } catch (error) {
+    console.error("Error deleting task:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
 
-const updateSubtasks = asyncHandler(async (req, res) => {
-  try {
-    const user = await User.findById(req.params.userId);
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    const task = user.tasks.id(req.params.taskId);
-    if (!task || task.deleted) {
-      return res
-        .status(404)
-        .json({ error: "Task not found or already deleted" });
-    }
-
-  
-    task.subtasks = [
-      ...task.subtasks.filter((subtask) => subtask.deleted),
-      ...req.body.subtasks,
-    ];
-
-    await user.save();
-    res.json(task.subtasks);
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
 
 module.exports = {
   listTasks,
   addTask,
   updateTask,
   deleteTask,
-  listSubtasks,
-  updateSubtasks,
 };
