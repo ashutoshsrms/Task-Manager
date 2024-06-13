@@ -60,7 +60,7 @@ const updateSubtasks = asyncHandler(async (req, res) => {
 
   try {
     // Find user by ID
-    const user = await User.findById(userId); // Assuming req.user.id contains the user ID
+    const user = await User.findById(userId); 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
@@ -71,7 +71,6 @@ const updateSubtasks = asyncHandler(async (req, res) => {
       return res.status(404).json({ error: "Task not found" });
     }
 
-    // Merge updated subtasks with existing subtasks
     updatedSubtasks.forEach((updatedSubtask) => {
       const existingSubtaskIndex = task.subtasks.findIndex((subtask) =>
         subtask._id.equals(updatedSubtask._id)
@@ -81,15 +80,12 @@ const updateSubtasks = asyncHandler(async (req, res) => {
         // Update existing subtask
         task.subtasks[existingSubtaskIndex] = updatedSubtask;
       } else {
-        // Add new subtask
         task.subtasks.push(updatedSubtask);
       }
     });
 
-    // Save updated user to the database
     await user.save();
 
-    // Respond with the updated list of subtasks
     res.json(task.subtasks);
   } catch (error) {
     console.error("Error updating subtasks:", error);
