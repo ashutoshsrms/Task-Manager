@@ -56,5 +56,8 @@ The Task Manager API is built with Express.js and MongoDB to facilitate the mana
 
 The server will run on `http://localhost:5000`.
 
+## Postman Collection Link
+`https://www.postman.com/satellite-administrator-57352774/workspace/ashu/folder/29303820-b63a9097-7367-4c97-8864-4a0122d49797`
+
 
 
